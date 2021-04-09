@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="world" ref="threeRenderer" />
-    <button>Jump</button>
+    <button @click="jump">Jump</button>
   </div>
 </template>
 
@@ -13,6 +13,8 @@ export default defineComponent({
   name: "Game",
 
   setup() {
+    const isJumping = false;
+    const bounceValue = 0;
     const snowballOriginalPosition = 2.03;
     const sceneWidth = window.innerWidth;
     const sceneHeight = window.innerHeight - 80;
@@ -34,6 +36,8 @@ export default defineComponent({
     const ground: any = {};
 
     return {
+      isJumping,
+      bounceValue,
       scene,
       camera,
       sceneWidth,
@@ -135,6 +139,21 @@ export default defineComponent({
       this.ground.rotation.x += 0.008;
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(this.animate);
+    },
+
+    jump() {
+      if (!this.isJumping) {
+        this.bounceValue = 0.8;
+        this.isJumping = true;
+
+        // It makes snowball jump
+        this.snowball.position.y += this.bounceValue;
+        setTimeout(() => {
+          this.snowball.position.y = this.snowballOriginalPosition;
+          this.isJumping = false;
+          this.bounceValue = 0;
+        }, 500);
+      }
     },
   },
 });
