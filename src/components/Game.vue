@@ -7,37 +7,64 @@ import { defineComponent } from "vue";
 import * as THREE from "three";
 
 export default defineComponent({
-  // Reference https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
-  mounted() {
-    const threeRenderer: HTMLElement = this.$refs.threeRenderer as HTMLElement;
-
+  setup() {
+    const snowballOriginalPosition = 2.03;
+    const sceneWidth = window.innerWidth;
+    const sceneHeight = window.innerHeight;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
+      60,
+      sceneWidth / sceneHeight,
       0.1,
       1000
     );
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true, //renderer with transparent backdrop
+      antialias: true, // Activate the anti-aliasing
+    });
+    const cube: any = {};
 
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    threeRenderer.appendChild(renderer.domElement);
+    return {
+      scene,
+      camera,
+      sceneWidth,
+      sceneHeight,
+      renderer,
+      cube,
+      snowballOriginalPosition,
+    };
+  },
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+  mounted() {
+    this.initScene();
+    this.renderCube();
+    this.animate();
+  },
 
-    camera.position.z = 5;
+  methods: {
+    initScene() {
+      // Reference https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
+      const threeRenderer: HTMLElement = this.$refs
+        .threeRenderer as HTMLElement;
+      this.renderer.setSize(this.sceneWidth, this.sceneHeight);
+      threeRenderer.appendChild(this.renderer.domElement);
+    },
 
-    function animate() {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+    renderCube() {
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      this.cube = new THREE.Mesh(geometry, material);
+      this.scene.add(this.cube);
+      this.camera.position.z = 5;
+    },
 
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
+    animate() {
+      this.cube.rotation.x += 0.01;
+      this.cube.rotation.y += 0.01;
+
+      requestAnimationFrame(this.animate);
+      this.renderer.render(this.scene, this.camera);
+    },
   },
 });
 </script>
