@@ -18,11 +18,14 @@ export default defineComponent({
       0.1,
       1000
     );
+    // Set the position of the camera
+    camera.position.y = 2.5;
+    camera.position.z = 6.5;
     const renderer = new THREE.WebGLRenderer({
       alpha: true, //renderer with transparent backdrop
       antialias: true, // Activate the anti-aliasing
     });
-    const cube: any = {};
+    const snowball: any = {};
 
     return {
       scene,
@@ -30,14 +33,15 @@ export default defineComponent({
       sceneWidth,
       sceneHeight,
       renderer,
-      cube,
+      snowball,
       snowballOriginalPosition,
     };
   },
 
   mounted() {
     this.initScene();
-    this.renderCube();
+    this.initLight();
+    this.renderSnowball();
     this.animate();
   },
 
@@ -46,24 +50,58 @@ export default defineComponent({
       // Reference https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
       const threeRenderer: HTMLElement = this.$refs
         .threeRenderer as HTMLElement;
+      this.scene.fog = new THREE.FogExp2(0xf0fff0, 0.14);
+
       this.renderer.setSize(this.sceneWidth, this.sceneHeight);
+      this.renderer.shadowMap.enabled = true; //enable shadow
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
       threeRenderer.appendChild(this.renderer.domElement);
     },
 
-    renderCube() {
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      this.cube = new THREE.Mesh(geometry, material);
-      this.scene.add(this.cube);
-      this.camera.position.z = 5;
+    initLight() {
+      // Ref: https://threejs.org/docs/?q=HemisphereLight#api/en/lights/HemisphereLight
+      const hemisphereLight = new THREE.HemisphereLight(
+        0xfffafa,
+        0x000000,
+        0.9
+      );
+      const light = new THREE.DirectionalLight(0xcdc1c5, 0.9);
+      // Set the direction of the light
+      light.position.set(12, 6, -7);
+      light.castShadow = true;
+      this.scene.add(hemisphereLight);
+      this.scene.add(light);
+    },
+
+    renderSnowball() {
+      // Ref: https://threejs.org/docs/#api/en/geometries/SphereGeometry
+      const geometry = new THREE.SphereGeometry(
+        0.2,
+        8,
+        6,
+        0,
+        Math.PI * 2,
+        0,
+        Math.PI
+      );
+      // Ref: https://threejs.org/docs/index.html#api/en/materials/MeshStandardMaterial
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xe5f2f2,
+        flatShading: true,
+      });
+      this.snowball = new THREE.Mesh(geometry, material);
+      this.snowball.receiveShadow = true;
+      this.snowball.castShadow = true;
+      this.snowball.position.y = this.snowballOriginalPosition;
+      this.snowball.position.z = 4.8;
+      this.scene.add(this.snowball);
     },
 
     animate() {
-      this.cube.rotation.x += 0.01;
-      this.cube.rotation.y += 0.01;
-
-      requestAnimationFrame(this.animate);
+      this.snowball.rotation.x += -0.08;
       this.renderer.render(this.scene, this.camera);
+      requestAnimationFrame(this.animate);
     },
   },
 });
