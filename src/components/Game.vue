@@ -1,5 +1,8 @@
 <template>
-  <div ref="threeRenderer"></div>
+  <div>
+    <div id="world" ref="threeRenderer" />
+    <button>Jump</button>
+  </div>
 </template>
 
 <script lang="ts">
@@ -7,10 +10,12 @@ import { defineComponent } from "vue";
 import * as THREE from "three";
 
 export default defineComponent({
+  name: "Game",
+
   setup() {
     const snowballOriginalPosition = 2.03;
     const sceneWidth = window.innerWidth;
-    const sceneHeight = window.innerHeight;
+    const sceneHeight = window.innerHeight - 80;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -107,4 +112,23 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+#world {
+  background: linear-gradient(#e4e0ba, #f7d9aa);
+}
+
+button {
+  margin-top: 10px;
+  height: 40px;
+  padding: 16px;
+  background-color: #3f82c3;
+  border-color: #3f82c3;
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  border-style: none;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #fff;
+}
+</style>
