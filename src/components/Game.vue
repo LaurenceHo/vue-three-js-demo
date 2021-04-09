@@ -135,7 +135,16 @@ export default defineComponent({
 
     animate() {
       this.snowball.rotation.x += -0.08;
-      //Make ground rolling, it will be looking like snowball rolling on it
+      if (this.snowball.position.y <= this.snowballOriginalPosition) {
+        this.isJumping = false;
+        // Make snowball a little bit bouncing, it will be looking like rolling on the uneven ground
+        this.bounceValue = Math.random() * 0.03 + 0.004;
+      }
+      this.snowball.position.y += this.bounceValue;
+      // Make snowball falling more naturally
+      this.bounceValue -= 0.005;
+      // Make ground rolling toward to the opposite direction of snowball,
+      // it will be looking like snowball rolling on it
       this.ground.rotation.x += 0.008;
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(this.animate);
@@ -143,16 +152,8 @@ export default defineComponent({
 
     jump() {
       if (!this.isJumping) {
-        this.bounceValue = 0.8;
+        this.bounceValue = 0.095;
         this.isJumping = true;
-
-        // It makes snowball jump
-        this.snowball.position.y += this.bounceValue;
-        setTimeout(() => {
-          this.snowball.position.y = this.snowballOriginalPosition;
-          this.isJumping = false;
-          this.bounceValue = 0;
-        }, 500);
       }
     },
   },
