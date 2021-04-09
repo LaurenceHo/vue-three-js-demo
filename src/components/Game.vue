@@ -31,6 +31,7 @@ export default defineComponent({
       antialias: true, // Activate the anti-aliasing
     });
     const snowball: any = {};
+    const ground: any = {};
 
     return {
       scene,
@@ -39,6 +40,7 @@ export default defineComponent({
       sceneHeight,
       renderer,
       snowball,
+      ground,
       snowballOriginalPosition,
     };
   },
@@ -46,6 +48,7 @@ export default defineComponent({
   mounted() {
     this.initScene();
     this.initLight();
+    this.renderGround();
     this.renderSnowball();
     this.animate();
   },
@@ -103,8 +106,33 @@ export default defineComponent({
       this.scene.add(this.snowball);
     },
 
+    renderGround() {
+      // Draw another big SphereGeometry as ground
+      const geometry = new THREE.SphereGeometry(
+        26,
+        40,
+        40,
+        0,
+        Math.PI * 2,
+        0,
+        Math.PI
+      );
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x59332e,
+        flatShading: true,
+      });
+      this.ground = new THREE.Mesh(geometry, material);
+      this.ground.receiveShadow = true;
+      // Adjust y position, make sure it's close to snowball
+      this.ground.position.y = -23.99;
+      this.ground.position.z = 2;
+      this.scene.add(this.ground);
+    },
+
     animate() {
       this.snowball.rotation.x += -0.08;
+      //Make ground rolling, it will be looking like snowball rolling on it
+      this.ground.rotation.x += 0.008;
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(this.animate);
     },
