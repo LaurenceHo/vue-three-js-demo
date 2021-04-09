@@ -34,6 +34,7 @@ export default defineComponent({
     });
     const snowball: any = {};
     const ground: any = {};
+    const rock: any = {};
 
     return {
       isJumping,
@@ -45,6 +46,7 @@ export default defineComponent({
       renderer,
       snowball,
       ground,
+      rock,
       snowballOriginalPosition,
     };
   },
@@ -133,7 +135,31 @@ export default defineComponent({
       this.scene.add(this.ground);
     },
 
+    renderRock() {
+      const geometry = new THREE.CylinderGeometry(0.1, 0.15, 1, 8, 1);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x23190f,
+        flatShading: true,
+      });
+      this.rock = new THREE.Mesh(geometry, material);
+      this.rock.receiveShadow = true;
+      this.rock.castShadow = true;
+      this.rock.position.y = 2;
+
+      const sphericalHelper = new THREE.Spherical();
+      sphericalHelper.set(25.7, 1.54, -this.ground.rotation.x + 4);
+      this.rock.position.setFromSpherical(sphericalHelper);
+      const groundVector = this.ground.position.clone().normalize();
+      const rockVector = this.rock.position.clone().normalize();
+      this.rock.quaternion.setFromUnitVectors(rockVector, groundVector);
+      this.rock.rotation.x +=
+        Math.random() * ((2 * Math.PI) / 10) + -Math.PI / 10;
+      // Attach rock to the ground
+      this.ground.add(this.rock);
+    },
+
     animate() {
+      this.renderRock();
       this.snowball.rotation.x += -0.08;
       if (this.snowball.position.y <= this.snowballOriginalPosition) {
         this.isJumping = false;
